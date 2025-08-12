@@ -5,4 +5,5 @@ import pricingTier from './pricingTier'
 import project from './project'
 import faq from './faq'
 
-export default [siteSettings, hero, service, pricingTier, project, faq]
+const schemas = [siteSettings, hero, service, pricingTier, project, faq]
+export default schemas
