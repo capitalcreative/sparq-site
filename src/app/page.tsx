@@ -1,5 +1,5 @@
 import { client } from '../sanity/client'
-import { heroQuery, servicesQuery, pricingQuery, faqsQuery } from '../sanity/queries'
+import { heroQuery, pricingQuery, faqsQuery } from '../sanity/queries'
 import Hero from '../components/Hero'
 import Pricing, { PricingTier } from '../components/Pricing'
 import FAQ from '../components/FAQ'
@@ -12,6 +12,7 @@ type HeroType = {
   secondaryCtaLabel?: string
   secondaryCtaHref?: string
 }
+
 type Faq = { question: string; answer: string }
 
 export default async function Home() {
@@ -33,7 +34,6 @@ export default async function Home() {
       />
 
       <Pricing tiers={pricing ?? []} />
-
       <FAQ items={faqs ?? []} />
     </main>
   )
