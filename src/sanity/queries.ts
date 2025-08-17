@@ -1,6 +1,25 @@
-import { groq } from 'next-sanity'
+import {groq} from 'next-sanity'
 
-export const heroQuery = groq`*[_type=="hero"][0]{title,subtitle,primaryCtaLabel,primaryCtaHref,secondaryCtaLabel,secondaryCtaHref}`
-export const servicesQuery = groq`*[_type=="service"]|order(order asc){name,short,includes}`
-export const pricingQuery = groq`*[_type=="pricingTier"]|order(order asc){name,priceFrom,features,note}`
-export const faqsQuery = groq`*[_type=="faq"]|order(order asc){question,answer}`
+export const pageBySlugQuery = groq`
+*[_type == "page" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  sections[]{
+    _type == "heroBlock" => {
+      _type, title, subtitle, primaryCtaLabel, primaryCtaHref, secondaryCtaLabel, secondaryCtaHref
+    },
+    _type == "pricingBlock" => {
+      _type, note,
+      "tiers": tiers[]->{
+        name, priceFrom, features, note
+      }
+    },
+    _type == "faqBlock" => {
+      _type,
+      "items": items[]->{
+        question, answer
+      }
+    }
+  }
+}
+`
