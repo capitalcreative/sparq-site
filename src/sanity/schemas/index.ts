@@ -18,7 +18,6 @@ const schemas = [
   pricingTier,
   project,
   faq,
-  // Page Builder
   page,
   heroBlock,
   pricingBlock,
