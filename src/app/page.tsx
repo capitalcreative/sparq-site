@@ -1,31 +1,40 @@
-// src/app/page.tsx
-import { client } from '../sanity/client'
+import { draftMode } from 'next/headers'
+import { client, previewClient } from '../sanity/client'
 import { pageBySlugQuery } from '../sanity/queries'
 import Hero from '../components/Hero'
 import Pricing, { PricingTier } from '../components/Pricing'
 import FAQ from '../components/FAQ'
 
+type HeroType = {
+  title?: string
+  subtitle?: string
+  primaryCtaLabel?: string
+  primaryCtaHref?: string
+  secondaryCtaLabel?: string
+  secondaryCtaHref?: string
+}
 type Section =
-  | ({ _type: 'heroBlock' } & {
-      title?: string; subtitle?: string;
-      primaryCtaLabel?: string; primaryCtaHref?: string;
-      secondaryCtaLabel?: string; secondaryCtaHref?: string;
-    })
+  | ({ _type: 'heroBlock' } & HeroType)
   | ({ _type: 'pricingBlock' } & { note?: string; tiers?: PricingTier[] })
   | ({ _type: 'faqBlock' } & { items?: { question: string; answer: string }[] })
-
 type Page = { title?: string; slug?: string; sections?: Section[] }
 
 export default async function Home() {
-  let page: Page | null = null
+  const { isEnabled } = await draftMode()
+  const c = isEnabled ? previewClient : client
 
+  let page: Page | null = null
   try {
-    page = await client.fetch<Page>(pageBySlugQuery, { slug: 'home' }, { next: { tags: ['page:home'] } })
+    page = await c.fetch<Page>(
+      pageBySlugQuery,
+      { slug: 'home' },
+      { next: { tags: ['page:home'] } } // ← aquí faltaban las llaves de cierre
+    )
   } catch {
-    // si Sanity falla por cualquier motivo, seguimos con el fallback
+    // si falla Sanity, seguimos con el fallback
   }
 
-  // Fallback para que JAMÁS se vea en blanco aunque no exista la página en Sanity
+  // Fallback para no ver la home en blanco nunca
   if (!page?.sections?.length) {
     return (
       <main className="p-8 max-w-5xl mx-auto">
@@ -41,7 +50,6 @@ export default async function Home() {
     )
   }
 
-  // Render del page-builder
   return (
     <main className="p-8 max-w-5xl mx-auto">
       {page.sections!.map((block, idx) => {
@@ -52,16 +60,16 @@ export default async function Home() {
                 key={idx}
                 title={block.title}
                 subtitle={block.subtitle}
-                cta1Label={block.primaryCtaLabel}
-                cta1Href={block.primaryCtaHref}
-                cta2Label={block.secondaryCtaLabel}
-                cta2Href={block.secondaryCtaHref}
+                cta1Label={(block as any).primaryCtaLabel}
+                cta1Href={(block as any).primaryCtaHref}
+                cta2Label={(block as any).secondaryCtaLabel}
+                cta2Href={(block as any).secondaryCtaHref}
               />
             )
           case 'pricingBlock':
-            return <Pricing key={idx} tiers={block.tiers ?? []} />
+            return <Pricing key={idx} tiers={(block as any).tiers ?? []} />
           case 'faqBlock':
-            return <FAQ key={idx} items={block.items ?? []} />
+            return <FAQ key={idx} items={(block as any).items ?? []} />
           default:
             return null
         }
@@ -69,13 +77,3 @@ export default async function Home() {
     </main>
   )
 }
-import { draftMode } from 'next/headers'
-import { client, previewClient } from '../sanity/client'
-import { pageBySlugQuery } from '../sanity/queries'
-
-// ...
-export default async function Home() {
-  const { isEnabled } = await draftMode()
-  const c = isEnabled ? previewClient : client
-
-  const page = await c.fetch(pageBySlugQuery, { slug: 'home' }, { next: { tags: ['page:home'] 
