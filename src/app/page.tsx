@@ -27,19 +27,14 @@ export default async function Home() {
   const { isEnabled } = await draftMode()
   const c = isEnabled ? previewClient : client
 
-  
-  const fetchOpts = isEnabled
-    ? { perspective: 'previewDrafts', useCdn: false, stega: true, next: { tags: ['page:home'] } }
-    : { stega: { enabled: false }, next: { tags: ['page:home'] } }
+  const fetchOptsDraft = { perspective: 'previewDrafts' as const, useCdn: false, stega: true as const }
+  const fetchOptsPub = { stega: { enabled: false } as const }
 
   let page: Page | null = null
   try {
-    page = await c.fetch<Page>(pageBySlugQuery, { slug: 'home' }, fetchOpts)
-  } catch {
-   
-  }
+    page = await c.fetch<Page>(pageBySlugQuery, { slug: 'home' }, isEnabled ? fetchOptsDraft : fetchOptsPub)
+  } catch {}
 
-  
   if (!page?.sections?.length) {
     return (
       <main className="p-8 max-w-5xl mx-auto">
