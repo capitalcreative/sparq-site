@@ -13,10 +13,13 @@ type HeroType = {
   secondaryCtaLabel?: string
   secondaryCtaHref?: string
 }
-type Section =
-  | ({ _type: 'heroBlock' } & HeroType)
-  | ({ _type: 'pricingBlock' } & { note?: string; tiers?: PricingTier[] })
-  | ({ _type: 'faqBlock' } & { items?: { question: string; answer: string }[] })
+type FaqItem = { question: string; answer: string }
+
+type HeroBlock = { _type: 'heroBlock' } & HeroType
+type PricingBlock = { _type: 'pricingBlock'; note?: string; tiers?: PricingTier[] }
+type FaqBlock = { _type: 'faqBlock'; items?: FaqItem[] }
+
+type Section = HeroBlock | PricingBlock | FaqBlock
 type Page = { title?: string; slug?: string; sections?: Section[] }
 
 export default async function Home() {
@@ -28,13 +31,13 @@ export default async function Home() {
     page = await c.fetch<Page>(
       pageBySlugQuery,
       { slug: 'home' },
-      { next: { tags: ['page:home'] } } // ← aquí faltaban las llaves de cierre
+      { next: { tags: ['page:home'] } }
     )
   } catch {
-    // si falla Sanity, seguimos con el fallback
+    // seguimos con fallback
   }
 
-  // Fallback para no ver la home en blanco nunca
+  // Fallback para no dejar la home en blanco
   if (!page?.sections?.length) {
     return (
       <main className="p-8 max-w-5xl mx-auto">
@@ -52,24 +55,30 @@ export default async function Home() {
 
   return (
     <main className="p-8 max-w-5xl mx-auto">
-      {page.sections!.map((block, idx) => {
+      {page.sections.map((block, idx) => {
         switch (block._type) {
-          case 'heroBlock':
+          case 'heroBlock': {
+            const b: HeroBlock = block
             return (
               <Hero
                 key={idx}
-                title={block.title}
-                subtitle={block.subtitle}
-                cta1Label={(block as any).primaryCtaLabel}
-                cta1Href={(block as any).primaryCtaHref}
-                cta2Label={(block as any).secondaryCtaLabel}
-                cta2Href={(block as any).secondaryCtaHref}
+                title={b.title}
+                subtitle={b.subtitle}
+                cta1Label={b.primaryCtaLabel}
+                cta1Href={b.primaryCtaHref}
+                cta2Label={b.secondaryCtaLabel}
+                cta2Href={b.secondaryCtaHref}
               />
             )
-          case 'pricingBlock':
-            return <Pricing key={idx} tiers={(block as any).tiers ?? []} />
-          case 'faqBlock':
-            return <FAQ key={idx} items={(block as any).items ?? []} />
+          }
+          case 'pricingBlock': {
+            const b: PricingBlock = block
+            return <Pricing key={idx} tiers={b.tiers ?? []} />
+          }
+          case 'faqBlock': {
+            const b: FaqBlock = block
+            return <FAQ key={idx} items={b.items ?? []} />
+          }
           default:
             return null
         }
