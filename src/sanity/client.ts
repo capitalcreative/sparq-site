@@ -12,6 +12,6 @@ export const client = baseClient
 
 export const previewClient = baseClient.withConfig({
   useCdn: false,
-  token: process.env.SANITY_VIEWER_TOKEN, // NO se envía al cliente si solo lo usas en server
+  token: process.env.SANITY_VIEWER_TOKEN, 
   stega: { studioUrl: process.env.NEXT_PUBLIC_SANITY_STUDIO_URL },
 })
