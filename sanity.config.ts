@@ -14,6 +14,15 @@ export default defineConfig({
   dataset: 'production',        
   basePath: '/studio',
   plugins: [deskTool(), visionTool()],
+presentationTool({
+      previewUrl: {
+        origin: process.env.SANITY_STUDIO_PREVIEW_ORIGIN, // 
+        preview: '/',                                     // 
+        previewMode: { enable: '/api/draft-mode/enable' } // 
+      }
+    }),
+    deskTool(),
+    visionTool(),
   schema: { types: schemas },
 })
 

@@ -69,3 +69,13 @@ export default async function Home() {
     </main>
   )
 }
+import { draftMode } from 'next/headers'
+import { client, previewClient } from '../sanity/client'
+import { pageBySlugQuery } from '../sanity/queries'
+
+// ...
+export default async function Home() {
+  const { isEnabled } = await draftMode()
+  const c = isEnabled ? previewClient : client
+
+  const page = await c.fetch(pageBySlugQuery, { slug: 'home' }, { next: { tags: ['page:home'] 

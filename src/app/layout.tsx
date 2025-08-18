@@ -23,3 +23,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
+import { Theme } from '@radix-ui/themes'
+import { VisualEditing } from 'next-sanity'
+import { draftMode } from 'next/headers'
+import { DisableDraftMode } from '@/components/DisableDraftMode'
+
+// ...
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { isEnabled } = await draftMode()
+  return (
+    <html lang="es">
+      <body>
+        <Theme accentColor="indigo" grayColor="slate" radius="large" scaling="100%" panelBackground="solid">
+          {children}
+          {isEnabled && (
+            <>
+              <VisualEditing />
+              <DisableDraftMode />
+            </>
+          )}
+        </Theme>
+      </body>
+    </html>
+  )
+}

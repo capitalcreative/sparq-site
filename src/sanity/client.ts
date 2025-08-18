@@ -1,9 +1,17 @@
 import { createClient } from 'next-sanity'
 
-export const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID!,
-  dataset: process.env.SANITY_DATASET!,
-  apiVersion: process.env.SANITY_API_VERSION!,
+const baseClient = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  apiVersion: '2024-07-01',
   useCdn: true,
-  token: process.env.SANITY_READ_TOKEN, // NO expongas esto en el navegador
+  stega: { studioUrl: process.env.NEXT_PUBLIC_SANITY_STUDIO_URL },
+})
+
+export const client = baseClient
+
+export const previewClient = baseClient.withConfig({
+  useCdn: false,
+  token: process.env.SANITY_VIEWER_TOKEN, // NO se envía al cliente si solo lo usas en server
+  stega: { studioUrl: process.env.NEXT_PUBLIC_SANITY_STUDIO_URL },
 })
