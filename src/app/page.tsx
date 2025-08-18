@@ -13,6 +13,7 @@ type HeroType = {
   secondaryCtaLabel?: string
   secondaryCtaHref?: string
 }
+
 type FaqItem = { question: string; answer: string }
 
 type HeroBlock = { _type: 'heroBlock' } & HeroType
@@ -26,18 +27,19 @@ export default async function Home() {
   const { isEnabled } = await draftMode()
   const c = isEnabled ? previewClient : client
 
+  // Opciones para habilitar overlays cuando hay draft mode
+  const fetchOpts = isEnabled
+    ? { perspective: 'previewDrafts', useCdn: false, stega: true, next: { tags: ['page:home'] } }
+    : { stega: { enabled: false }, next: { tags: ['page:home'] } }
+
   let page: Page | null = null
   try {
-    page = await c.fetch<Page>(
-      pageBySlugQuery,
-      { slug: 'home' },
-      { next: { tags: ['page:home'] } }
-    )
+    page = await c.fetch<Page>(pageBySlugQuery, { slug: 'home' }, fetchOpts)
   } catch {
-    // seguimos con fallback
+    // Si Sanity falla por cualquier motivo, seguimos con el fallback
   }
 
-  // Fallback para no dejar la home en blanco
+  // Fallback para que JAMÁS se vea la home en blanco
   if (!page?.sections?.length) {
     return (
       <main className="p-8 max-w-5xl mx-auto">
