@@ -27,7 +27,7 @@ export default async function Home() {
   const { isEnabled } = await draftMode()
   const c = isEnabled ? previewClient : client
 
-  // Opciones para habilitar overlays cuando hay draft mode
+  
   const fetchOpts = isEnabled
     ? { perspective: 'previewDrafts', useCdn: false, stega: true, next: { tags: ['page:home'] } }
     : { stega: { enabled: false }, next: { tags: ['page:home'] } }
@@ -36,10 +36,10 @@ export default async function Home() {
   try {
     page = await c.fetch<Page>(pageBySlugQuery, { slug: 'home' }, fetchOpts)
   } catch {
-    // Si Sanity falla por cualquier motivo, seguimos con el fallback
+   
   }
 
-  // Fallback para que JAMÁS se vea la home en blanco
+  
   if (!page?.sections?.length) {
     return (
       <main className="p-8 max-w-5xl mx-auto">
